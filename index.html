@@ -1157,11 +1157,11 @@ $('quit-resume').addEventListener('click', () => {
 $('quit-exit').addEventListener('click', () => { $('sheet-quit').classList.remove('on'); go('home'); });
 
 /* ───────── 화면 훅 ───────── */
-function onEnter(id, ex) {
-  if (id === 'guide') {
-    loadGuide(ex != null ? ex : state.exIdx);
-  } else if (id === 'player') {
-    loadExercise(ex != null ? ex : state.exIdx);
+function onEnter(id, ex){
+  if(id === 'analysis') runScan();
+  if(id === 'guide'){
+    fillGuide(ex != null && EXERCISES[ex] ? +ex : 0);
+    playBanner('guide-vid');
   }
   if(id === 'player'){
     $('sheet-rest').classList.remove('on');
