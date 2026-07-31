@@ -220,7 +220,14 @@ h1,h2,h3,h4,p{margin:0}
 
 /* ── 동작 가이드 ── */
 .gbanner{border-radius:22px;overflow:hidden;aspect-ratio:16/11;background:#fff}
-.gbanner video{width:100%;height:100%;object-fit:cover;object-position:50% 50%;display:block}
+/* 1. 동작 가이드 배너 영상의 경우 (기존 50% 50%를 50% 100% 등으로 변경) */
+.gbanner video {
+  width: 100%;
+  height: 100%;
+  object-fit: cover;
+  object-position: 50% 100%; /* 바닥(발) 부분이 보이도록 초점을 아래로 내림 */
+  display: block;
+}
 .chips{display:flex;gap:8px;margin:14px 0}
 .chips button{height:36px;padding:0 16px;border-radius:999px;border:0;background:#fff;font-family:inherit;font-size:13px;font-weight:600;color:#8A8C87;cursor:pointer}
 .chips button.on{background:#17181A;color:#fff}
@@ -235,7 +242,14 @@ h1,h2,h3,h4,p{margin:0}
 
 /* ── 세션 플레이어 ── */
 .player{position:relative;background:#EDEDEA;min-height:100dvh;flex-direction:column;overflow:hidden}
-.player .vid{position:absolute;inset:0;width:100%;height:100%;object-fit:cover}
+.player .vid {
+  position: absolute;
+  inset: 0;
+  width: 100%;
+  height: 90%;
+  object-fit: cover;
+  object-position: 50% 80%; /* 필요에 따라 80% ~ 100% 사이로 조절해 발이 보이게 맞춥니다 */
+}
 .ptop{position:relative;z-index:3;display:flex;align-items:center;justify-content:space-between;
   padding:calc(env(safe-area-inset-top) + 14px) 20px 0}
 .ptop .ttl{font-size:16px;font-weight:700;color:#17181A}
@@ -464,7 +478,7 @@ h1,h2,h3,h4,p{margin:0}
     <svg viewBox="0 0 24 24" fill="none"><path d="M11 3l1.6 4.2L17 8.8l-4.4 1.6L11 14.6 9.4 10.4 5 8.8l4.4-1.6z" fill="#A9DB6E"/><path d="M17.5 14l.8 2.1 2.2.8-2.2.8-.8 2.1-.8-2.1-2.2-.8 2.2-.8z" fill="#7EC9A5"/></svg>
     <h3>코스 추천 이유</h3>
   </div>
-  <p class="sub">어려웠다고 한 낙타자세와 등 근육을 기준으로 골랐어요. 어려웠다고 한 낙타자세와 등 근육을 기준으로 골랐어요.</p>
+  <p class="sub"><p>어려웠다고 한 낙타자세와 등 근육을 기준으로 골랐어요.<br>등근육 강화와 낙타자세에 사용되는 장요근 및 대퇴사두근과 복직근 및 복사근을 같이 강화해봐요.</p>
   <div class="grow"></div>
   <div class="footer">
     <button class="cta" data-go="home">오늘 코스 시작하기</button>
