@@ -208,3 +208,27 @@ YMOVE_API_KEY=ym_... node dev-server.js
 - [ ] 배포 후 `https://<도메인>/api/ymove` 를 직접 열어 `{"ok":true, "poses":{...}}` 가 나오는지 확인
 - [ ] **참가자에게 링크를 보내기 직전에 `/api/ymove` 를 한 번 열어 두세요.** 함수가 처음 깨어날 때 3초쯤 걸려서, 첫 참가자만 사진이 늦게 뜹니다. 한 번 호출해두면 30분간 캐시됩니다
 - [ ] UT 종료 후 YMove API 키 재발급
+
+---
+
+## 7. Maze 스니펫 (연동 코드)
+
+Maze의 **Website Test / In-product Prompt**를 쓰려면, 참가자가 방문할 모든 페이지의 여는 `<head>` 바로 다음에 Maze 추적 코드가 있어야 합니다. 이미 `index.html` 최상단에 넣어 두었습니다 (팀 키 `c7cfa181-…`).
+
+- 이 앱은 화면이 모두 `index.html` 하나 안에 있어서 **한 번만 넣으면 전 화면에 적용**됩니다
+- 이 키는 YMove 키와 달리 **원래 클라이언트에 노출되는 공개 키**입니다. HTML에 있어도 문제 없습니다
+- 이 사이트에는 CSP(Content-Security-Policy) 설정이 없어서 추가로 손댈 것이 없습니다
+
+**Maze 쪽 연결 순서**
+
+1. Maze → Team settings → **Connected websites** → `Connect a website`
+2. 이름과 **기본 URL**(`https://alignerut.netlify.app`, 하위 경로 없이) 입력
+3. `I have access to my website code` 선택 → 코드가 이미 들어 있으니 `Continue`
+4. **`Verify` 를 반드시 누르세요.** 이 단계를 건너뛰면 프롬프트가 로드되지 않습니다
+5. 그 다음 Create maze → **Website test** 에서 미션별 URL(`?s=...`)을 지정
+
+**주의점 (Maze 문서 기준)**
+
+- Website test는 **한 탭 안에서** 진행돼야 합니다. 새 탭·새 창으로 열리는 링크는 추적되지 않습니다
+- 검증할 때 Maze는 경로를 잘라 **루트 주소만** 저장·확인합니다. 우리 사이트는 루트가 곧 앱이라 그대로 통과합니다
+- 스니펫 자체는 방문자 정보를 수집하지 않습니다. 다만 website test 중 화면 녹화·스크린샷에는 참가자가 입력한 값이 그대로 남을 수 있으니, 키·몸무게처럼 개인정보성 입력이 있는 화면은 Maze의 **screenshot anonymization** 옵션을 켜두는 걸 권합니다
