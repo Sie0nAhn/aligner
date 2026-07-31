@@ -1002,10 +1002,10 @@ document.getElementById('ex-list').innerHTML = EXERCISES.map((x,i) => `
     </div>
   </div>`).join('');
 
-/* 동작 카드를 누르면 그 동작의 플레이어로 바로 이동 (?s=player&ex=N) */
+/* 동작 카드를 누르면 동작 가이드로 이동 (?s=guide) */
 document.getElementById('ex-list').addEventListener('click', e => {
   const card = e.target.closest('.excard'); if(!card) return;
-  go('player', true, +card.dataset.i);
+  go('guide', true);
 });
 
 /* ───────── 동작 가이드 ───────── */
