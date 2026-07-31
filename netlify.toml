@@ -1,0 +1,9 @@
+[build]
+  publish = "."
+  functions = "netlify/functions"
+
+# /api/ymove 로도 접근되게 (Vercel과 경로 통일)
+[[redirects]]
+  from = "/api/ymove"
+  to = "/.netlify/functions/ymove"
+  status = 200

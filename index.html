@@ -1,0 +1,1074 @@
+<!DOCTYPE html>
+<html lang="ko">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1, maximum-scale=1, viewport-fit=cover">
+<meta name="theme-color" content="#F4F4F0">
+<title>ALIGHNER</title>
+<link rel="stylesheet" href="https://cdn.jsdelivr.net/gh/orioncactus/pretendard@v1.3.9/dist/web/static/pretendard.css">
+<style>
+:root{
+  --bg:#F4F4F0; --card:#FFFFFF; --ink:#17181A; --sub:#8B8D8A; --mute:#B4B5B0;
+  --line:#E7E7E1; --lime:#E5FF00; --lime-soft:#F3F8C9; --olive:#6C6F4E;
+  --btn:#111214; --btn-off:#D9DAD6; --btn-off-ink:#A3A49F;
+  --r:20px;
+}
+*{box-sizing:border-box;-webkit-tap-highlight-color:transparent}
+html,body{margin:0;padding:0;height:100%}
+body{
+  background:#DCDCD8; color:var(--ink);
+  font-family:Pretendard,-apple-system,BlinkMacSystemFont,'Apple SD Gothic Neo','Noto Sans KR',sans-serif;
+  -webkit-font-smoothing:antialiased; overscroll-behavior:none;
+}
+#app{position:relative;max-width:430px;margin:0 auto;min-height:100dvh;background:var(--bg);overflow:hidden}
+.screen{display:none;flex-direction:column;min-height:100dvh;
+  padding:calc(env(safe-area-inset-top) + 14px) 20px calc(env(safe-area-inset-bottom) + 20px);}
+.screen.on{display:flex}
+.screen.bleed{padding-left:0;padding-right:0;padding-top:0;padding-bottom:0}
+.grow{flex:1 1 auto}
+
+/* ---------- typography ---------- */
+h1,h2,h3,p{margin:0}
+.title{font-size:22px;font-weight:700;letter-spacing:-.02em;line-height:1.35}
+.title-lg{font-size:24px;font-weight:800;letter-spacing:-.03em;line-height:1.3}
+.eyebrow{font-size:12px;color:var(--sub);font-weight:500}
+.sub{font-size:13px;color:var(--sub);line-height:1.6}
+.center{text-align:center}
+
+/* ---------- nav ---------- */
+.nav{display:flex;align-items:center;height:44px;margin-bottom:6px;position:relative}
+.nav .ttl{position:absolute;left:0;right:0;text-align:center;font-size:15px;font-weight:600;pointer-events:none}
+.iconbtn{width:38px;height:38px;border-radius:50%;background:#fff;border:0;display:grid;place-items:center;
+  box-shadow:0 2px 8px rgba(0,0,0,.06);cursor:pointer;flex:none}
+.iconbtn svg{width:18px;height:18px}
+
+/* ---------- onboarding progress ---------- */
+.steps{display:flex;gap:6px;align-items:center;margin:2px 0 22px}
+.steps i{display:block;width:20px;height:2.5px;border-radius:2px;background:#DCDCD6}
+.steps i.on{background:#1B1C1E}
+
+/* ---------- buttons ---------- */
+.cta{width:100%;height:56px;border:0;border-radius:999px;background:var(--btn);color:#fff;
+  font-size:16px;font-weight:600;font-family:inherit;cursor:pointer;letter-spacing:-.02em}
+.cta[disabled]{background:var(--btn-off);color:var(--btn-off-ink);cursor:default}
+.cta.ghost{background:#EFEFEA;color:#6E6F6B}
+.footer{padding-top:16px}
+
+/* ---------- option list ---------- */
+.opts{display:flex;flex-direction:column;gap:10px}
+.opt{width:100%;height:54px;border-radius:14px;background:#fff;border:1.5px solid transparent;
+  font-size:15px;font-weight:500;font-family:inherit;color:#3A3B38;cursor:pointer}
+.opt[aria-pressed="true"]{background:#FBFFE4;border-color:#D6EA4A;color:#17181A;font-weight:600}
+
+/* ---------- pose grid ---------- */
+.grid{display:grid;grid-template-columns:repeat(3,1fr);gap:18px 10px}
+.cellwrap{display:flex;flex-direction:column;align-items:center;gap:8px}
+.cell{width:100%;aspect-ratio:1/1;border-radius:50%;border:2px solid transparent;overflow:hidden;
+  background:
+    repeating-conic-gradient(#E4E4E4 0% 25%, #F2F2F2 0% 50%) 0 0/16px 16px;
+  cursor:pointer;padding:0;position:relative}
+.cell img{width:100%;height:100%;object-fit:cover;display:block}
+.cell img.ym{object-position:50% 46%}
+.ch3 .c img.ym{width:100%;height:58px;object-fit:cover;border-radius:10px;margin-bottom:10px}
+.citem .th img{object-position:50% 46%}
+.cell[aria-pressed="true"]{border-color:#D6EA4A;box-shadow:0 0 0 3px rgba(214,234,74,.28)}
+.cell.used{opacity:.35;cursor:default}
+.cellwrap .lb{font-size:11.5px;color:#5F615D;font-weight:500}
+.cellwrap.used .lb{color:#BDBEB9}
+.count{font-size:13px;color:var(--sub);font-weight:600}
+
+/* ---------- inputs ---------- */
+.fields{display:flex;gap:12px}
+.field{flex:1}
+.field .lb{font-size:12px;color:var(--sub);margin-bottom:8px}
+.inbox{display:flex;align-items:baseline;gap:4px;background:#fff;border:1.5px solid transparent;
+  border-radius:14px;padding:14px 16px}
+.inbox:focus-within{border-color:#D6EA4A}
+.inbox input{border:0;outline:0;font-family:inherit;font-size:20px;font-weight:700;width:100%;
+  background:transparent;color:var(--ink);min-width:0}
+.inbox input::placeholder{color:#C7C8C3;font-weight:600}
+.inbox span{font-size:13px;color:#9A9B96;font-weight:500;flex:none}
+
+/* ---------- silhouette screens ---------- */
+.silo{position:absolute;inset:0;background:linear-gradient(180deg,#F7F8F4 0%,#F5F8DF 55%,#F3FBB9 100%);z-index:0}
+.silo img{position:absolute;left:50%;bottom:0;transform:translateX(-50%);height:74%;width:auto;
+  opacity:.92;pointer-events:none}
+.silo-screen{position:relative}
+.silo-screen>*:not(.silo){position:relative;z-index:1}
+
+/* focus picker */
+.focuswrap{display:flex;gap:10px;margin-top:8px;align-items:flex-start}
+.focuslist{width:150px;margin-left:auto;display:flex;flex-direction:column;gap:10px}
+.frow{background:#fff;border-radius:16px;overflow:hidden}
+.frow>button{width:100%;height:52px;display:flex;align-items:center;justify-content:space-between;
+  padding:0 12px 0 16px;border:0;background:#fff;font-family:inherit;font-size:15px;font-weight:600;cursor:pointer}
+.dot{width:26px;height:26px;border-radius:9px;background:#EDEDE8;display:grid;place-items:center}
+.dot i{width:7px;height:7px;border-radius:50%;background:#B7B8B3;display:block}
+.frow.sel>button .dot{background:var(--lime)}
+.frow.sel>button .dot i{background:#17181A}
+.sublist{display:none;background:var(--olive);padding:4px 0}
+.frow.open .sublist{display:block}
+.sublist button{width:100%;height:44px;display:flex;align-items:center;justify-content:space-between;
+  padding:0 16px;border:0;background:transparent;font-family:inherit;font-size:14px;font-weight:600;
+  color:#D6D8C4;cursor:pointer}
+.sublist button i{width:7px;height:7px;border-radius:50%;background:#CFD1BE;display:block}
+.sublist button[aria-pressed="true"]{color:var(--lime)}
+.sublist button[aria-pressed="true"] i{background:var(--lime)}
+.hotspot{position:absolute;width:34px;height:34px;border-radius:50%;background:rgba(80,84,60,.55);
+  display:grid;place-items:center;z-index:1}
+.hotspot i{width:13px;height:13px;border-radius:50%;background:#EDEDE6;display:block}
+.hotspot.on i{background:var(--lime)}
+
+/* ---------- cards ---------- */
+.card{background:var(--card);border-radius:var(--r)}
+.hero{position:relative;border-radius:24px;overflow:hidden;background:linear-gradient(180deg,#DCDCDA 0%,#E4E6D2 62%,#EDF3C0 100%)}
+.hero img.pose{position:absolute;right:-4%;bottom:4px;height:92%;width:auto;max-width:82%;object-fit:contain}
+.hero .inner{position:relative;padding:18px 18px 14px;min-height:214px;display:flex;flex-direction:column}
+.badge-min{width:60px;height:60px;border-radius:50%;background:#191A1C;color:#fff;
+  display:flex;align-items:baseline;justify-content:center;gap:1px;
+  font-size:17px;font-weight:700;letter-spacing:-.03em;box-shadow:0 6px 18px rgba(0,0,0,.18)}
+.badge-min small{font-size:10.5px;font-weight:600}
+.stats{display:flex;background:linear-gradient(90deg,#EDF3BE,#E6EFAF);border-radius:999px;padding:10px 6px;
+  margin-top:auto;position:relative}
+.stats div{flex:1;text-align:center;font-size:11.5px;color:#3E4034;font-weight:600}
+.stats div b{display:block;font-size:14px;margin-bottom:3px}
+
+/* challenge cards on home */
+.hrow{display:flex;align-items:baseline;justify-content:space-between;margin:26px 0 12px}
+.hrow h3{font-size:16px;font-weight:700}
+.hrow button{border:0;background:0;font-size:12px;color:var(--sub);font-family:inherit;cursor:pointer}
+.ch3{display:grid;grid-template-columns:repeat(3,1fr);gap:9px}
+.ch3 .c{background:#fff;border-radius:16px;padding:12px 10px 10px;text-align:center}
+.ch3 .c img{height:56px;display:block;margin:0 auto 10px}
+.bar{height:6px;border-radius:99px;background:#E9E9E4;overflow:hidden}
+.bar i{display:block;height:100%;background:var(--lime);border-radius:99px}
+.ch3 .c .nm{font-size:10.5px;color:#6E706B;margin-top:7px;font-weight:500}
+
+/* remind banner */
+.remind{background:#fff;border-radius:18px;padding:12px 10px;display:flex;justify-content:space-between}
+.remind div{display:flex;flex-direction:column;align-items:center;gap:7px;flex:1}
+.remind span{font-size:10.5px;color:#8E908B;font-weight:500}
+.remind i{width:22px;height:22px;border-radius:50%;background:#F0F0EB;display:block}
+.remind i.done{background:var(--lime)}
+.remind i.miss{background:repeating-linear-gradient(45deg,#E8ECC4 0 3px,#F4F6E2 3px 6px)}
+
+/* tabbar */
+.tabbar{margin-top:22px;background:#fff;border-radius:999px;padding:6px;display:flex}
+.tabbar button{flex:1;border:0;background:transparent;font-family:inherit;padding:8px 0 6px;border-radius:999px;
+  font-size:10.5px;color:#8E908B;font-weight:600;cursor:pointer;display:flex;flex-direction:column;align-items:center;gap:5px}
+.tabbar button.on{background:#EEEFE8;color:#3E4034}
+
+/* filters */
+.filters{display:flex;gap:8px;margin:6px 0 16px}
+.filters button{height:38px;padding:0 18px;border-radius:999px;border:0;background:#fff;font-family:inherit;
+  font-size:13px;font-weight:600;color:#8A8C87;cursor:pointer}
+.filters button.on{background:#17181A;color:#fff}
+
+.clist{display:flex;flex-direction:column;gap:12px}
+.citem{background:#fff;border-radius:18px;padding:14px;display:flex;gap:14px;align-items:center}
+.citem .th{width:64px;height:64px;border-radius:14px;background:#D2D2CE;flex:none;overflow:hidden}
+.citem .th img{width:100%;height:100%;object-fit:cover;opacity:.9}
+.citem .bd{flex:1;min-width:0}
+.citem .nm{font-size:15px;font-weight:700}
+.citem .cnt{font-size:11.5px;color:var(--sub);margin:3px 0 8px}
+.citem .st{font-size:11px;color:var(--sub);font-weight:600;align-self:flex-start;flex:none}
+.citem .st.done{color:#6C7A00}
+
+/* course list */
+.exlist{display:flex;flex-direction:column;gap:10px;margin-top:18px;position:relative}
+.exitem{display:flex;gap:10px;align-items:stretch}
+.exno{width:22px;flex:none;display:flex;flex-direction:column;align-items:center;padding-top:12px}
+.exno b{width:20px;height:20px;border-radius:50%;background:#CFD0CB;color:#fff;font-size:11px;
+  display:grid;place-items:center;font-weight:700;flex:none}
+.exno b.first{background:#17181A}
+.exno s{flex:1;width:1px;border-left:1.5px dotted #D3D4CF;margin:4px 0 -14px}
+.excard{flex:1;background:#fff;border-radius:18px;padding:10px;display:flex;gap:12px}
+.excard .th{width:74px;height:82px;border-radius:12px;overflow:hidden;background:#E3E1DC;flex:none}
+.excard .th img{width:100%;height:100%;object-fit:cover;object-position:50% 42%}
+.excard .nm{font-size:15px;font-weight:700}
+.excard .tg{font-size:12px;color:var(--sub);margin:5px 0 2px}
+.excard .se{font-size:12px;color:#6C6E69}
+.excard .kc{font-size:11px;color:var(--mute);margin-top:6px}
+.excard .more{margin-left:auto;color:#C6C7C2;font-size:16px;line-height:1;padding:2px 2px 0}
+
+/* guide */
+.chips{display:flex;gap:8px;margin:14px 0 14px}
+.chips button{height:36px;padding:0 16px;border-radius:999px;border:0;background:#fff;font-family:inherit;
+  font-size:13px;font-weight:600;color:#8A8C87;cursor:pointer}
+.chips button.on{background:#17181A;color:#fff}
+.guiderow{display:flex;gap:10px}
+.mmap{width:56%;border-radius:18px;overflow:hidden;background:#141414}
+.mmap img{width:100%;display:block}
+.keycard{flex:1;background:#fff;border-radius:18px;padding:14px}
+.keycard .kdot{width:30px;height:30px;border-radius:10px;background:var(--lime);display:grid;place-items:center;margin-bottom:10px}
+.keycard .kdot i{width:7px;height:7px;border-radius:50%;background:#17181A;display:block}
+.keycard h4{margin:0 0 8px;font-size:14px;font-weight:700}
+.keycard p{font-size:13px;color:#6C6E69;line-height:1.55}
+
+/* player */
+.player{position:relative;background:#000;min-height:100dvh;flex-direction:column;overflow:hidden}
+.player .vid{position:absolute;inset:0;width:100%;height:100%;object-fit:cover}
+.player .top{position:relative;z-index:2;display:flex;justify-content:flex-end;
+  padding:calc(env(safe-area-inset-top) + 14px) 18px 0}
+.player .top .iconbtn{background:rgba(0,0,0,.35)}
+.player .top .iconbtn svg{stroke:#fff}
+.player .cue{position:relative;z-index:2;margin-top:auto;padding:0 22px 18px;
+  background:linear-gradient(180deg,rgba(0,0,0,0) 0%,rgba(0,0,0,.55) 42%,rgba(0,0,0,.78) 100%);padding-top:70px}
+.player .cue .m{color:#fff;font-size:15px;font-weight:600;line-height:1.55;letter-spacing:-.02em;white-space:pre-line}
+.player .cue .n{color:rgba(255,255,255,.42);font-size:13px;margin-top:10px;line-height:1.5}
+.player .ctrl{position:relative;z-index:2;background:#000;padding:16px 22px calc(env(safe-area-inset-bottom) + 18px)}
+.tline{display:flex;align-items:center;gap:10px;color:#fff;font-size:11px;font-variant-numeric:tabular-nums}
+.tline .track{flex:1;height:3px;border-radius:99px;background:rgba(255,255,255,.22);overflow:hidden}
+.tline .track i{display:block;height:100%;background:#fff;border-radius:99px;width:0}
+.pbtns{display:flex;align-items:center;justify-content:center;gap:44px;margin-top:16px}
+.pbtns button{border:0;background:transparent;color:rgba(255,255,255,.75);font-family:inherit;font-size:13px;
+  font-weight:600;cursor:pointer}
+.pplay{width:52px;height:52px;border-radius:16px;background:#fff!important;display:grid;place-items:center}
+.pplay svg{width:18px;height:18px;fill:#111}
+
+/* sheets */
+.sheetbg{position:absolute;inset:0;z-index:5;display:none;background:#000}
+.sheetbg.on{display:block}
+.sheetbg .bgimg{position:absolute;inset:0;width:100%;height:100%;object-fit:cover;filter:grayscale(1) brightness(.62)}
+.sheet{position:absolute;left:0;right:0;bottom:0;background:#F6F6F2;border-radius:26px 26px 0 0;
+  padding:14px 22px calc(env(safe-area-inset-bottom) + 22px);text-align:center}
+.handle{width:38px;height:4px;border-radius:99px;background:#DBDBD5;margin:0 auto 18px}
+.sheet h3{font-size:17px;font-weight:700;margin-bottom:18px}
+.timerrow{display:flex;align-items:center;justify-content:center;gap:16px;margin-bottom:22px}
+.timerrow button{width:56px;height:36px;border-radius:999px;border:0;background:#fff;font-family:inherit;
+  font-size:12px;font-weight:600;color:#4A4C47;cursor:pointer}
+.circle{width:118px;height:118px;border-radius:50%;background:var(--lime);display:grid;place-items:center;
+  box-shadow:0 8px 24px rgba(200,225,0,.35)}
+.circle b{font-size:30px;font-weight:800;letter-spacing:-.03em;font-variant-numeric:tabular-nums}
+.circle small{font-size:9.5px;color:#5C6300;font-weight:600;margin-top:1px}
+.sheet p.q{font-size:13px;color:var(--sub);line-height:1.6;margin:-8px 0 20px}
+
+/* complete */
+.checkrow{display:flex;gap:10px;margin-bottom:12px;align-items:stretch;height:126px}
+.checkrow .im{width:46%;border-radius:16px;overflow:hidden;background:#141414;flex:none}
+.checkrow .im img{width:100%;height:100%;object-fit:cover;object-position:50% 26%;display:block}
+.checkrow .qb{flex:1;background:#fff;border-radius:16px;padding:14px;cursor:pointer;display:flex;flex-direction:column;gap:12px}
+.cbox{width:28px;height:28px;border-radius:9px;background:#F0F0EB;display:grid;place-items:center;flex:none}
+.cbox svg{width:15px;height:15px;stroke:#fff;display:none}
+.checkrow.on .cbox{background:var(--lime)}
+.checkrow.on .cbox svg{display:block;stroke:#17181A}
+.checkrow .qt{font-size:13px;font-weight:600;line-height:1.5;color:#3A3B38}
+
+/* splash */
+.splash{position:relative;background:linear-gradient(180deg,#FCFCFA 0%,#F7FAE2 48%,#EEF7A8 100%);
+  justify-content:flex-end;overflow:hidden}
+.splash img.sil{position:absolute;left:50%;top:52%;transform:translate(-50%,-50%);height:74%;opacity:.9}
+.splash .brand{position:absolute;left:0;right:0;top:44%;text-align:center;padding:0 18px}
+.splash .brand h1{font-size:30px;font-weight:300;letter-spacing:.1em;color:#EDEEE4;
+  text-shadow:0 1px 14px rgba(30,34,16,.45)}
+.splash .brand p{font-size:12px;color:#DDDFD0;margin-top:8px;letter-spacing:-.01em;
+  text-shadow:0 1px 10px rgba(30,34,16,.5)}
+.kakao{width:100%;height:54px;border:0;border-radius:12px;background:#FEE500;color:#191919;
+  font-family:inherit;font-size:15px;font-weight:600;display:flex;align-items:center;justify-content:center;gap:8px;
+  position:relative;z-index:2;cursor:pointer}
+
+/* saved */
+.savedwrap{align-items:center;justify-content:center;text-align:center;gap:6px}
+.savedmark{width:76px;height:76px;border-radius:50%;background:var(--lime);display:grid;place-items:center;margin-bottom:22px}
+.savedmark svg{width:32px;height:32px;stroke:#17181A;fill:none;stroke-width:2.4}
+.recap{background:#fff;border-radius:18px;padding:16px;display:flex;width:100%;margin-top:24px}
+.recap div{flex:1;text-align:center;font-size:11px;color:var(--sub);font-weight:600}
+.recap div b{display:block;font-size:17px;color:var(--ink);margin-bottom:4px}
+</style>
+</head>
+<body>
+<div id="app">
+
+<!-- ══════════ 0. SPLASH ══════════ -->
+<section class="screen splash bleed" data-s="splash" style="padding:0 20px calc(env(safe-area-inset-bottom) + 28px)">
+  <img class="sil" src="assets/silhouette.png" alt="">
+  <div class="brand">
+    <h1>ALIGHNER</h1>
+    <p>~하는 나만의 코치</p>
+  </div>
+  <button class="kakao" data-go="sport">
+    <svg width="17" height="16" viewBox="0 0 18 17" fill="#191919"><path d="M9 0C4.03 0 0 3.14 0 7.02c0 2.5 1.67 4.7 4.19 5.94-.18.65-.67 2.43-.77 2.81-.12.47.17.46.36.34.15-.1 2.37-1.6 3.33-2.25.61.09 1.24.14 1.89.14 4.97 0 9-3.14 9-7.02S13.97 0 9 0z"/></svg>
+    카카오로 3초만에 시작하기
+  </button>
+</section>
+
+<!-- ══════════ 1. 운동 종목 ══════════ -->
+<section class="screen" data-s="sport">
+  <div class="nav"><button class="iconbtn" data-back><svg fill="none" stroke="#17181A" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" viewBox="0 0 24 24"><path d="M15 18l-6-6 6-6"/></svg></button></div>
+  <div class="steps" data-step="1"></div>
+  <h2 class="title" style="margin-bottom:22px">현재 어떤 운동을 하고 있나요?</h2>
+  <div class="grid" id="g-sport"></div>
+  <div class="grow"></div>
+  <div class="footer"><button class="cta" id="cta-sport" disabled data-go="duration">다음</button></div>
+</section>
+
+<!-- ══════════ 2. 운동 기간 ══════════ -->
+<section class="screen" data-s="duration">
+  <div class="nav"><button class="iconbtn" data-back><svg fill="none" stroke="#17181A" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" viewBox="0 0 24 24"><path d="M15 18l-6-6 6-6"/></svg></button></div>
+  <div class="steps" data-step="2"></div>
+  <h2 class="title" style="margin-bottom:22px">운동을 하신지 얼마나 됐나요?</h2>
+  <div class="opts" id="g-duration">
+    <button class="opt" aria-pressed="false">1년 미만</button>
+    <button class="opt" aria-pressed="false">1~3년</button>
+    <button class="opt" aria-pressed="false">3년 이상</button>
+  </div>
+  <div class="grow"></div>
+  <div class="footer"><button class="cta" id="cta-duration" disabled data-go="body">다음</button></div>
+</section>
+
+<!-- ══════════ 3. 키 / 몸무게 ══════════ -->
+<section class="screen" data-s="body">
+  <div class="nav"><button class="iconbtn" data-back><svg fill="none" stroke="#17181A" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" viewBox="0 0 24 24"><path d="M15 18l-6-6 6-6"/></svg></button></div>
+  <div class="steps" data-step="3"></div>
+  <h2 class="title" style="margin-bottom:24px">키와 몸무게를 알려주세요</h2>
+  <div class="fields">
+    <div class="field">
+      <div class="lb">키</div>
+      <label class="inbox"><input id="in-h" inputmode="numeric" pattern="[0-9]*" maxlength="3" placeholder="160"><span>cm</span></label>
+    </div>
+    <div class="field">
+      <div class="lb">몸무게</div>
+      <label class="inbox"><input id="in-w" inputmode="numeric" pattern="[0-9]*" maxlength="3" placeholder="50"><span>kg</span></label>
+    </div>
+  </div>
+  <div class="grow"></div>
+  <div class="footer"><button class="cta" id="cta-body" disabled data-go="easy">다음</button></div>
+</section>
+
+<!-- ══════════ 4. 쉬웠던 자세 ══════════ -->
+<section class="screen" data-s="easy">
+  <div class="nav"><button class="iconbtn" data-back><svg fill="none" stroke="#17181A" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" viewBox="0 0 24 24"><path d="M15 18l-6-6 6-6"/></svg></button></div>
+  <div class="steps" data-step="4"></div>
+  <div style="display:flex;align-items:flex-start;justify-content:space-between;gap:12px;margin-bottom:22px">
+    <h2 class="title">평소 쉬웠던 자세는<br>어떤 동작이었나요?</h2>
+    <span class="count" id="cnt-easy" style="padding-top:6px">0/4</span>
+  </div>
+  <div class="grid" id="g-easy"></div>
+  <div class="grow"></div>
+  <div class="footer"><button class="cta" id="cta-easy" disabled data-go="hard">다음</button></div>
+</section>
+
+<!-- ══════════ 5. 어려웠던 자세 ══════════ -->
+<section class="screen" data-s="hard">
+  <div class="nav"><button class="iconbtn" data-back><svg fill="none" stroke="#17181A" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" viewBox="0 0 24 24"><path d="M15 18l-6-6 6-6"/></svg></button></div>
+  <div class="steps" data-step="5"></div>
+  <div style="display:flex;align-items:flex-start;justify-content:space-between;gap:12px;margin-bottom:22px">
+    <h2 class="title">특히 어려웠던 자세는<br>어떤 동작이었나요?</h2>
+    <span class="count" id="cnt-hard" style="padding-top:6px">0/4</span>
+  </div>
+  <div class="grid" id="g-hard"></div>
+  <div class="grow"></div>
+  <div class="footer"><button class="cta" id="cta-hard" disabled data-go="analysis">다음</button></div>
+</section>
+
+<!-- ══════════ 6. 분석 결과 ══════════ -->
+<section class="screen silo-screen" data-s="analysis">
+  <div class="silo"><img src="assets/silhouette.png" alt=""></div>
+  <div class="nav"><button class="iconbtn" data-back><svg fill="none" stroke="#17181A" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" viewBox="0 0 24 24"><path d="M15 18l-6-6 6-6"/></svg></button></div>
+  <div class="steps" data-step="6"></div>
+  <h2 class="title" style="margin-top:8px">홍길동님은 등, 골반 근육이<br>약한것으로 분석돼요</h2>
+  <div class="grow"></div>
+  <div class="footer"><button class="cta" data-go="focus">다음</button></div>
+</section>
+
+<!-- ══════════ 7. 강화 부위 선택 ══════════ -->
+<section class="screen silo-screen" data-s="focus">
+  <div class="silo">
+    <img src="assets/silhouette.png" alt="">
+    <div class="hotspot" id="hs-back" style="left:33%;top:44%"><i></i></div>
+    <div class="hotspot" id="hs-pelvis" style="left:44%;top:60%"><i></i></div>
+  </div>
+  <div class="nav"><button class="iconbtn" data-back><svg fill="none" stroke="#17181A" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" viewBox="0 0 24 24"><path d="M15 18l-6-6 6-6"/></svg></button></div>
+  <div class="steps" data-step="7"></div>
+  <h2 class="title" style="margin-top:8px">강화하고 싶은 부위를 선택하면<br>맞춤 동작을 추천드려요</h2>
+  <div class="focuswrap">
+    <div class="focuslist">
+      <div class="frow" data-part="등">
+        <button><span>등</span><span class="dot"><i></i></span></button>
+        <div class="sublist">
+          <button data-lv="하" aria-pressed="false"><span>하</span><i></i></button>
+          <button data-lv="중" aria-pressed="false"><span>중</span><i></i></button>
+          <button data-lv="상" aria-pressed="false"><span>상</span><i></i></button>
+        </div>
+      </div>
+      <div class="frow" data-part="복부">
+        <button><span>복부</span><span class="dot"><i></i></span></button>
+        <div class="sublist">
+          <button data-lv="하" aria-pressed="false"><span>하</span><i></i></button>
+          <button data-lv="중" aria-pressed="false"><span>중</span><i></i></button>
+          <button data-lv="상" aria-pressed="false"><span>상</span><i></i></button>
+        </div>
+      </div>
+      <div class="frow" data-part="골반">
+        <button><span>골반</span><span class="dot"><i></i></span></button>
+        <div class="sublist">
+          <button data-lv="하" aria-pressed="false"><span>하</span><i></i></button>
+          <button data-lv="중" aria-pressed="false"><span>중</span><i></i></button>
+          <button data-lv="상" aria-pressed="false"><span>상</span><i></i></button>
+        </div>
+      </div>
+    </div>
+  </div>
+  <div class="grow"></div>
+  <div class="footer"><button class="cta" id="cta-focus" disabled data-go="ready">다음</button></div>
+</section>
+
+<!-- ══════════ 8. 첫 코스 준비 ══════════ -->
+<section class="screen" data-s="ready">
+  <div class="nav"><button class="iconbtn" data-back><svg fill="none" stroke="#17181A" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" viewBox="0 0 24 24"><path d="M15 18l-6-6 6-6"/></svg></button></div>
+  <h2 class="title-lg" style="margin:10px 0 20px">첫 코스가 준비 됐어요</h2>
+  <div class="hero" style="background:linear-gradient(160deg,#C8C8C4,#9C9C98)">
+    <img class="pose" src="assets/pose_camel_photo.jpg" alt="낙타 자세" style="mix-blend-mode:luminosity;opacity:.95;height:100%;right:-4%;max-width:none">
+    <div class="inner" style="min-height:246px">
+      <span style="align-self:flex-start;background:#D9E0B0;color:#3E4034;font-size:11px;font-weight:600;padding:6px 12px;border-radius:999px">6개 운동</span>
+      <div class="grow"></div>
+      <div style="display:flex;align-items:flex-end;justify-content:space-between">
+        <div style="font-size:26px;font-weight:300;color:#fff;letter-spacing:-.02em">낙타 자세</div>
+      </div>
+      <div style="position:absolute;right:18px;bottom:64px;font-size:12px;color:#3F4038;font-weight:600">19%</div>
+    </div>
+  </div>
+  <h3 style="font-size:15px;font-weight:700;margin:22px 0 8px">코스 추천 이유</h3>
+  <p class="sub">어려웠다고 한 낙타자세와 등 근육을 기준으로 골랐어요. 어려웠다고 한 낙타자세와 등 근육을 기준으로 골랐어요.</p>
+  <div class="grow"></div>
+  <div class="footer"><button class="cta" data-go="home">오늘 코스 시작하기</button></div>
+</section>
+
+<!-- ══════════ 9. 홈 ══════════ -->
+<section class="screen" data-s="home">
+  <h2 class="title-lg" style="margin:14px 0 18px">안녕하세요, OOO님</h2>
+  <div class="hero" id="home-card" style="cursor:pointer">
+    <img class="pose" src="assets/pose_camel_cut.png" alt="">
+    <div class="inner">
+      <div class="eyebrow" id="home-when" style="color:#6E7066">오늘의 코스</div>
+      <div style="font-size:19px;font-weight:700;margin:4px 0 14px;letter-spacing:-.02em">낙타자세 정복하기</div>
+      <div class="badge-min">15<small>분</small></div>
+      <div class="stats">
+        <div><b>大</b>6개 운동</div>
+        <div><b>◔</b>6개 세트</div>
+        <div><b>◍</b>69Kcal</div>
+      </div>
+    </div>
+  </div>
+  <div class="hrow"><h3>자세 도전 현황</h3><button data-go="challenges">전체보기</button></div>
+  <div class="ch3">
+    <div class="c" data-pose="낙타자세"><img src="assets/pose_icon.png" alt=""><div class="bar"><i style="width:75%"></i></div><div class="nm">낙타자세 3/4</div></div>
+    <div class="c" data-pose="다운독"><img src="assets/pose_icon.png" alt=""><div class="bar"><i style="width:50%"></i></div><div class="nm">다운독 2/4</div></div>
+    <div class="c" data-pose="보트자세"><img src="assets/pose_icon.png" alt=""><div class="bar"><i style="width:25%"></i></div><div class="nm">보트자세 1/4</div></div>
+  </div>
+  <div class="eyebrow" style="margin:24px 0 8px">리마인드 배너</div>
+  <div class="remind">
+    <div><span>월</span><i class="done"></i></div>
+    <div><span>화</span><i class="done"></i></div>
+    <div><span>수</span><i class="done"></i></div>
+    <div><span>목</span><i class="miss"></i></div>
+    <div><span>금</span><i class="done"></i></div>
+    <div><span>토</span><i class="miss"></i></div>
+    <div><span>일</span><i></i></div>
+  </div>
+  <div class="grow"></div>
+  <div class="tabbar">
+    <button class="on"><svg width="16" height="16" viewBox="0 0 20 20"><rect x="4" y="4" width="12" height="12" rx="2.5" transform="rotate(45 10 10)" fill="#5C6B1E"/></svg>홈</button>
+    <button id="tab-my"><svg width="16" height="16" viewBox="0 0 20 20"><path d="M10 4l7 12H3z" fill="#17181A"/></svg>마이</button>
+  </div>
+</section>
+
+<!-- ══════════ 10. 자세 도전 현황 ══════════ -->
+<section class="screen" data-s="challenges">
+  <div class="nav">
+    <button class="iconbtn" data-back><svg fill="none" stroke="#17181A" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" viewBox="0 0 24 24"><path d="M15 18l-6-6 6-6"/></svg></button>
+    <div class="ttl">자세 도전 현황</div>
+  </div>
+  <div class="filters" id="ch-filters">
+    <button class="on" data-f="all">전체 4</button>
+    <button data-f="doing">도전 중 3</button>
+    <button data-f="done">완성 1</button>
+  </div>
+  <div class="clist" id="ch-list"></div>
+  <div class="grow"></div>
+</section>
+
+<!-- ══════════ 11. 코스 개요 ══════════ -->
+<section class="screen" data-s="course">
+  <div class="nav">
+    <button class="iconbtn" data-back><svg fill="none" stroke="#17181A" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" viewBox="0 0 24 24"><path d="M15 18l-6-6 6-6"/></svg></button>
+    <div class="ttl">데일리 루틴</div>
+  </div>
+  <h2 class="title-lg" style="margin:6px 0 16px">낙타자세 정복하기</h2>
+  <div class="hero">
+    <img class="pose" src="assets/pose_camel_cut.png" alt="">
+    <div class="inner" style="min-height:230px">
+      <div class="badge-min">15<small>분</small></div>
+      <div class="stats">
+        <div><b>大</b>6개 운동</div>
+        <div><b>◔</b>6개 세트</div>
+        <div><b>◍</b>69Kcal</div>
+      </div>
+    </div>
+  </div>
+  <div class="exlist" id="ex-list"></div>
+  <div class="footer" style="position:sticky;bottom:0;background:linear-gradient(180deg,rgba(244,244,240,0) 0%,var(--bg) 34%);padding-bottom:6px">
+    <button class="cta" data-go="guide">운동 시작하기</button>
+  </div>
+</section>
+
+<!-- ══════════ 12. 동작 가이드 ══════════ -->
+<section class="screen" data-s="guide">
+  <div class="nav">
+    <button class="iconbtn" data-back><svg fill="none" stroke="#17181A" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" viewBox="0 0 24 24"><path d="M15 18l-6-6 6-6"/></svg></button>
+    <div class="ttl">데일리 루틴</div>
+  </div>
+  <div class="eyebrow" style="margin-top:10px">1/6 · 난이도 하</div>
+  <h2 class="title-lg" style="margin:6px 0 16px">캣카우</h2>
+  <div style="border-radius:20px;overflow:hidden;aspect-ratio:16/11;background:#DDD">
+    <img id="guide-img" src="assets/pose_catcow.jpg" alt="캣카우" style="width:100%;height:100%;object-fit:cover;object-position:50% 38%">
+  </div>
+  <h3 style="font-size:16px;font-weight:700;margin:22px 0 0">운동 가이드</h3>
+  <div class="chips" id="guide-chips">
+    <button class="on" data-p="chest">가슴</button>
+    <button data-p="core">코어</button>
+    <button data-p="waist">허리</button>
+    <button data-p="pelvis">골반</button>
+  </div>
+  <div class="guiderow">
+    <div class="mmap"><img id="mmap-img" src="assets/muscle_chest.png" alt=""></div>
+    <div class="keycard">
+      <div class="kdot"><i></i></div>
+      <h4>핵심 동작</h4>
+      <p id="key-text">명치를 천장을 향해 높게 끌어올리세요.</p>
+    </div>
+  </div>
+  <div class="grow"></div>
+  <div class="footer"><button class="cta" data-go="player">동작 시작하기</button></div>
+</section>
+
+<!-- ══════════ 13. 세션 플레이어 ══════════ -->
+<section class="screen bleed player" data-s="player">
+  <video class="vid" id="vid" playsinline webkit-playsinline muted loop preload="auto" style="display:none"></video>
+  <img class="vid" id="vid-fallback" src="assets/video_still.jpg" alt="">
+  <div class="top">
+    <button class="iconbtn" id="btn-quit"><svg fill="none" stroke="#fff" stroke-width="2" stroke-linecap="round" viewBox="0 0 24 24"><path d="M18 6L6 18M6 6l12 12"/></svg></button>
+  </div>
+  <div class="cue">
+    <div class="m" id="cue-main"></div>
+    <div class="n" id="cue-next"></div>
+  </div>
+  <div class="ctrl">
+    <div class="tline">
+      <span id="t-cur">00:00</span>
+      <span class="track"><i id="t-fill"></i></span>
+      <span id="t-tot">03:00</span>
+    </div>
+    <div class="pbtns">
+      <button id="btn-prev">이전</button>
+      <button class="pplay" id="btn-play"><svg id="ic-play" viewBox="0 0 24 24"><rect x="6" y="4" width="4" height="16" rx="1"/><rect x="14" y="4" width="4" height="16" rx="1"/></svg></button>
+      <button id="btn-next">다음</button>
+    </div>
+  </div>
+
+  <!-- 휴식 시트 -->
+  <div class="sheetbg" id="sheet-rest">
+    <img class="bgimg" src="assets/video_still.jpg" alt="">
+    <div class="sheet">
+      <div class="handle"></div>
+      <h3>휴식 타이머</h3>
+      <div class="timerrow">
+        <button id="rest-minus">-10초</button>
+        <div class="circle"><div><b id="rest-time">00:30</b><small style="display:block">권장 휴식시간</small></div></div>
+        <button id="rest-plus">+10초</button>
+      </div>
+      <button class="cta" id="rest-stop">휴식 중단하기</button>
+    </div>
+  </div>
+
+  <!-- 그만두기 시트 -->
+  <div class="sheetbg" id="sheet-quit">
+    <img class="bgimg" src="assets/video_still.jpg" alt="">
+    <div class="sheet" style="text-align:left">
+      <div class="handle"></div>
+      <h3>운동을 그만둘까요?</h3>
+      <p class="q">지금까지 <span id="q-done">0</span>개 동작을 끝냈어요.<br>완료한 동작은 기록에 반영돼요.</p>
+      <button class="cta" id="quit-resume" style="margin-bottom:10px">이어서 하기</button>
+      <button class="cta ghost" id="quit-exit">그만두기</button>
+    </div>
+  </div>
+</section>
+
+<!-- ══════════ 14. 완료 셀프체크 ══════════ -->
+<section class="screen" data-s="complete">
+  <div class="nav" style="justify-content:flex-end">
+    <button class="iconbtn" data-go="home"><svg fill="none" stroke="#17181A" stroke-width="2" stroke-linecap="round" viewBox="0 0 24 24"><path d="M18 6L6 18M6 6l12 12"/></svg></button>
+  </div>
+  <h2 class="title-lg" style="margin:4px 0 12px">낙타 자세를 루틴을<br>마쳤어요</h2>
+  <p class="sub" style="margin-bottom:22px">오늘 낙타자세가 어디까지 됐는지 체크하면<br>안 된 포인트를 내일 코스에 넣어드려요</p>
+  <div id="check-list"></div>
+  <div class="grow"></div>
+  <div class="footer" style="position:sticky;bottom:0;background:linear-gradient(180deg,rgba(244,244,240,0) 0%,var(--bg) 34%)">
+    <button class="cta" data-go="saved">다음</button>
+  </div>
+</section>
+
+<!-- ══════════ 15. 기록 저장 완료 ══════════ -->
+<section class="screen savedwrap" data-s="saved">
+  <div class="grow"></div>
+  <div class="savedmark"><svg viewBox="0 0 24 24" stroke-linecap="round" stroke-linejoin="round"><path d="M4 12.5l5.5 5.5L20 7"/></svg></div>
+  <h2 class="title-lg">오늘 기록이 저장됐어요</h2>
+  <p class="sub" style="margin-top:10px">체크하지 못한 포인트는<br>내일 코스에 자동으로 담았어요</p>
+  <div class="recap">
+    <div><b id="rc-ex">2</b>완료 동작</div>
+    <div><b id="rc-chk">0/4</b>자세 체크</div>
+    <div><b>23</b>Kcal</div>
+  </div>
+  <div class="grow"></div>
+  <div class="footer" style="width:100%"><button class="cta" data-go="home">홈으로</button></div>
+</section>
+
+</div>
+
+<script>
+/* ════════════════════════════════════════════════
+   ALIGHNER — UT용 모바일 웹 프로토타입
+   화면 전환마다 URL이 ?s=<화면id> 로 바뀝니다.
+   Maze Website Test에서 미션 성공 조건을 URL로 지정하세요.
+   ════════════════════════════════════════════════ */
+
+const SPORTS = ['요가','발레','필라테스','바레','수영','태권도','골프','테니스','크로스 핏'];
+const POSES  = ['낙타자세','휠','활자세','보트자세','사이드플랭크','반보트','브릿지','말라사나','파이어로그'];
+const POSE_IMG = {'낙타자세':'assets/pose_camel_cut.png','휠':'assets/pose_camel_cut.png'};
+const SPORT_IMG = {'요가':'assets/pose_camel_cut.png'};
+
+/* 자세 이름 → YMove Exercise API slug */
+const POSE_SLUG = {
+  '낙타자세':'camel-pose', '낙타 자세':'camel-pose', '휠':'wheel-pose', '활자세':'bow-pose',
+  '보트자세':'boat-pose', '사이드플랭크':'side-plank-pose-right', '반보트':'half-boat-pose',
+  '브릿지':'bridge-pose', '말라사나':'garland-pose', '파이어로그':'fire-log-pose-right',
+  '캣카우':'cat-cow-pose', '다운독':'downward-dog', '테이블탑 밸런스':'tiger-pose-right',
+  '플랭크 트랜지션':'plank-pose', '낮은 런지':'low-lunge-right', '요가':'downward-dog'
+};
+
+const EXERCISES = [
+  {n:'캣카우',        tag:'가동성 웜업', se:'1세트/2분', kcal:6, dur:180},
+  {n:'보트자세',      tag:'가동성 웜업', se:'3세트/2분', kcal:6, dur:120},
+  {n:'테이블탑 밸런스',tag:'가동성 웜업', se:'3세트/2분', kcal:6, dur:120},
+  {n:'플랭크 트랜지션',tag:'가동성 웜업', se:'1세트/2분', kcal:6, dur:120},
+  {n:'낮은 런지',      tag:'본운동',     se:'2세트/2분', kcal:6, dur:120},
+  {n:'낙타 자세',      tag:'본운동',     se:'2세트/3분', kcal:6, dur:180}
+];
+
+/* 음성 큐 자막 — 1번 동작 첫 줄만 시안에 존재, 나머지는 테스트용으로 작성됨 */
+const CUES = {
+  0:[{t:0,  m:'양손을 무릎 위에 두고, 가슴과 허리를 쭉 뻗어\n근육을 늘려주세요. 이제 준비가 되었어요.', x:'그 다음 허리를 쭉 뻗어 근육을 늘려주세요.'},
+     {t:45, m:'숨을 마시며 명치를 천장 쪽으로\n높게 끌어올려 주세요.', x:'내쉬면서 등을 둥글게 말아줍니다.'},
+     {t:100,m:'숨을 내쉬며 등을 천천히 둥글게 말아주세요.', x:'같은 호흡으로 5회 더 반복합니다.'},
+     {t:150,m:'같은 호흡으로 5회 더 반복해 주세요.', x:'잠시 후 휴식이 시작돼요.'}],
+  1:[{t:0,  m:'꼬리뼈로 앉아 무릎을 세우고\n가슴을 들어 올려주세요.', x:'양손을 무릎 옆으로 나란히 뻗습니다.'},
+     {t:40, m:'양손을 무릎 옆으로 나란히 뻗어주세요.', x:'배를 단단히 조인 채 10초 버팁니다.'},
+     {t:80, m:'배를 단단히 조인 채 10초 버텨주세요.', x:'천천히 내려와 마무리합니다.'}]
+};
+
+const CHALLENGES = [
+  {n:'낙타자세', c:3, s:'doing'},
+  {n:'다운독',   c:2, s:'doing'},
+  {n:'보트자세', c:1, s:'doing'},
+  {n:'캣카우',   c:4, s:'done'}
+];
+
+const CHECKS = [
+  {q:'명치를 천장을 향해 높게 끌어올렸나요?', img:'assets/muscle_chest.png'},
+  {q:'골반이 앞으로 밀었나요?',               img:'assets/muscle_pelvis.png'},
+  {q:'가슴이 천장쪽으로 열렸나요?',           img:'assets/muscle_chest.png'},
+  {q:'손이 발뒤꿈치에 닿았나요?',             img:'assets/muscle_core.png'}
+];
+
+const KEYTEXT = {
+  chest:'명치를 천장을 향해 높게 끌어올리세요.',
+  core:'배를 등 쪽으로 당겨 몸통을 단단하게 유지하세요.',
+  waist:'허리를 꺾기보다 길게 늘인다는 느낌으로 움직이세요.',
+  pelvis:'골반이 좌우로 기울지 않게 바닥과 수평을 유지하세요.'
+};
+
+const state = {
+  sport:null, duration:null, easy:[], hard:[], part:null, level:null,
+  exIdx:0, doneEx:0, checks:[false,false,false,false], visited:['splash']
+};
+
+/* ═════════ YMove Exercise API (서버리스 프록시 경유) ═════════
+   키는 브라우저에 오지 않습니다. 프록시가 없으면(로컬 파일로 열었을 때 등)
+   번들된 Figma 시안 이미지로 자동 폴백합니다. */
+let YM = null;
+const YM_ENDPOINTS = ['/api/ymove', '/.netlify/functions/ymove'];
+
+function thumbOf(name){ const s = POSE_SLUG[name]; return (YM && s && YM[s] && YM[s].thumb) || null; }
+function videoOf(name){ const s = POSE_SLUG[name]; return (YM && s && YM[s] && YM[s].video) || null; }
+
+async function loadYMove(refresh){
+  for(const u of YM_ENDPOINTS){
+    try{
+      const r = await fetch(u + (refresh ? '?refresh=1' : ''), {cache:'no-store'});
+      if(!r.ok) continue;
+      const j = await r.json();
+      if(j && j.ok && j.poses && Object.keys(j.poses).length) return j.poses;
+    }catch(_){}
+  }
+  return null;
+}
+
+function applyMedia(){
+  document.querySelectorAll('#g-easy .cellwrap, #g-hard .cellwrap').forEach(w => {
+    const t = thumbOf(w.dataset.n); if(!t) return;
+    const cell = w.querySelector('.cell');
+    let img = cell.querySelector('img');
+    if(!img){ img = document.createElement('img'); cell.appendChild(img); }
+    img.src = t; img.className = 'ym';
+  });
+  const yg = document.querySelector('#g-sport .cellwrap[data-n="요가"] .cell img');
+  if(yg && thumbOf('요가')){ yg.src = thumbOf('요가'); yg.className = 'ym'; }
+  document.querySelectorAll('#ex-list .excard').forEach(card => {
+    const t = thumbOf(card.dataset.n);
+    if(t) card.querySelector('.th img').src = t;
+  });
+  document.querySelectorAll('.ch3 .c').forEach(c => {
+    const t = thumbOf(c.dataset.pose); if(!t) return;
+    const img = c.querySelector('img'); img.src = t; img.className = 'ym';
+  });
+  const g = document.getElementById('guide-img');
+  if(g && thumbOf('캣카우')) g.src = thumbOf('캣카우');
+  const t0 = thumbOf('캣카우');
+  if(t0) document.querySelectorAll('.sheetbg .bgimg').forEach(im => im.src = t0);
+  const f = document.querySelector('#ch-filters button.on');
+  renderChallenges(f ? f.dataset.f : 'all');
+}
+
+/* ───────── 라우터 ───────── */
+const screens = [...document.querySelectorAll('.screen')];
+function current(){ return document.querySelector('.screen.on')?.dataset.s; }
+function go(id, push=true){
+  const from = current();
+  if(from === id) return;
+  if(from) onLeave(from);
+  screens.forEach(s => s.classList.toggle('on', s.dataset.s === id));
+  window.scrollTo(0,0);
+  document.getElementById('app').scrollTop = 0;
+  if(push){ history.pushState({s:id}, '', '?s=' + id); state.visited.push(id); }
+  onEnter(id);
+}
+window.addEventListener('popstate', e => {
+  const id = (e.state && e.state.s) || new URLSearchParams(location.search).get('s') || 'splash';
+  go(id, false);
+});
+document.addEventListener('click', e => {
+  const g = e.target.closest('[data-go]');
+  if(g && !g.disabled){ go(g.dataset.go); return; }
+  if(e.target.closest('[data-back]')) history.back();
+});
+
+/* ───────── 온보딩 진행 표시 ───────── */
+document.querySelectorAll('.steps').forEach(el => {
+  const cur = +el.dataset.step;
+  el.innerHTML = Array.from({length:8}, (_,i) => `<i class="${i < cur ? 'on' : ''}"></i>`).join('');
+});
+
+/* ───────── 그리드 빌더 ───────── */
+function buildGrid(el, items, imgMap){
+  el.innerHTML = items.map(n => `
+    <div class="cellwrap" data-n="${n}">
+      <button class="cell" aria-pressed="false">${imgMap[n] ? `<img src="${imgMap[n]}" alt="">` : ''}</button>
+      <span class="lb">${n}</span>
+    </div>`).join('');
+}
+buildGrid(document.getElementById('g-sport'), SPORTS, SPORT_IMG);
+buildGrid(document.getElementById('g-easy'),  POSES,  POSE_IMG);
+buildGrid(document.getElementById('g-hard'),  POSES,  POSE_IMG);
+
+/* 종목 — 단일 선택 */
+document.getElementById('g-sport').addEventListener('click', e => {
+  const b = e.target.closest('.cell'); if(!b) return;
+  document.querySelectorAll('#g-sport .cell').forEach(c => c.setAttribute('aria-pressed','false'));
+  b.setAttribute('aria-pressed','true');
+  state.sport = b.closest('.cellwrap').dataset.n;
+  document.getElementById('cta-sport').disabled = false;
+});
+
+/* 기간 — 단일 선택 */
+document.getElementById('g-duration').addEventListener('click', e => {
+  const b = e.target.closest('.opt'); if(!b) return;
+  document.querySelectorAll('#g-duration .opt').forEach(o => o.setAttribute('aria-pressed','false'));
+  b.setAttribute('aria-pressed','true');
+  state.duration = b.textContent;
+  document.getElementById('cta-duration').disabled = false;
+});
+
+/* 키/몸무게 */
+['in-h','in-w'].forEach(id => {
+  const el = document.getElementById(id);
+  el.addEventListener('input', () => {
+    el.value = el.value.replace(/[^0-9]/g,'');
+    document.getElementById('cta-body').disabled =
+      !(document.getElementById('in-h').value && document.getElementById('in-w').value);
+  });
+});
+
+/* 자세 — 최대 4개 다중 선택 */
+function multiPick(gridId, key, cntId, ctaId){
+  document.getElementById(gridId).addEventListener('click', e => {
+    const b = e.target.closest('.cell'); if(!b) return;
+    const wrap = b.closest('.cellwrap');
+    if(wrap.classList.contains('used')) return;
+    const n = wrap.dataset.n, arr = state[key], i = arr.indexOf(n);
+    if(i > -1){ arr.splice(i,1); b.setAttribute('aria-pressed','false'); }
+    else{
+      if(arr.length >= 4) return;
+      arr.push(n); b.setAttribute('aria-pressed','true');
+    }
+    document.getElementById(cntId).textContent = arr.length + '/4';
+    document.getElementById(ctaId).disabled = arr.length === 0;
+  });
+}
+multiPick('g-easy','easy','cnt-easy','cta-easy');
+multiPick('g-hard','hard','cnt-hard','cta-hard');
+
+/* ───────── 강화 부위 ───────── */
+document.querySelectorAll('#g-focus, .focuslist .frow > button').forEach(b => {
+  b.addEventListener('click', () => {
+    const row = b.closest('.frow'), wasOpen = row.classList.contains('open');
+    document.querySelectorAll('.focuslist .frow').forEach(r => { r.classList.remove('open'); r.classList.remove('sel'); });
+    if(!wasOpen){ row.classList.add('open','sel'); state.part = row.dataset.part; }
+    else { state.part = null; }
+    syncFocus();
+  });
+});
+document.querySelectorAll('.sublist button').forEach(b => {
+  b.addEventListener('click', () => {
+    const row = b.closest('.frow');
+    row.querySelectorAll('.sublist button').forEach(x => x.setAttribute('aria-pressed','false'));
+    b.setAttribute('aria-pressed','true');
+    state.part = row.dataset.part; state.level = b.dataset.lv;
+    row.classList.add('sel');
+    syncFocus();
+  });
+});
+function syncFocus(){
+  document.getElementById('hs-back').classList.toggle('on', state.part === '등');
+  document.getElementById('hs-pelvis').classList.toggle('on', state.part === '골반' || state.part === '복부');
+  document.getElementById('cta-focus').disabled = !(state.part && state.level);
+}
+
+/* ───────── 자세 도전 현황 ───────── */
+function renderChallenges(f='all'){
+  const list = CHALLENGES.filter(c => f === 'all' || c.s === f);
+  document.getElementById('ch-list').innerHTML = list.map(c => `
+    <div class="citem">
+      <div class="th">${thumbOf(c.n) ? `<img src="${thumbOf(c.n)}" alt="">` : ''}</div>
+      <div class="bd">
+        <div class="nm">${c.n}</div>
+        <div class="cnt">${c.c} / 4 체크</div>
+        <div class="bar"><i style="width:${c.c/4*100}%"></i></div>
+      </div>
+      <div class="st ${c.s === 'done' ? 'done' : ''}">${c.s === 'done' ? '완성' : '도전 중'}</div>
+    </div>`).join('');
+}
+document.getElementById('ch-filters').addEventListener('click', e => {
+  const b = e.target.closest('button'); if(!b) return;
+  document.querySelectorAll('#ch-filters button').forEach(x => x.classList.remove('on'));
+  b.classList.add('on'); renderChallenges(b.dataset.f);
+});
+renderChallenges();
+
+/* ───────── 코스 동작 리스트 ───────── */
+document.getElementById('ex-list').innerHTML = EXERCISES.map((x,i) => `
+  <div class="exitem">
+    <div class="exno"><b class="${i===0?'first':''}">${i+1}</b>${i<EXERCISES.length-1?'<s></s>':''}</div>
+    <div class="excard" data-n="${x.n}">
+      <div class="th"><img src="assets/pose_thumb.jpg" alt=""></div>
+      <div>
+        <div class="nm">${x.n}</div>
+        <div class="tg">${x.tag}</div>
+        <div class="se">${x.se}</div>
+        <div class="kc">◍ ${x.kcal}kcal</div>
+      </div>
+      <div class="more">⋮</div>
+    </div>
+  </div>`).join('');
+
+/* ───────── 동작 가이드 부위 탭 ───────── */
+document.getElementById('guide-chips').addEventListener('click', e => {
+  const b = e.target.closest('button'); if(!b) return;
+  document.querySelectorAll('#guide-chips button').forEach(x => x.classList.remove('on'));
+  b.classList.add('on');
+  document.getElementById('mmap-img').src = 'assets/muscle_' + b.dataset.p + '.png';
+  document.getElementById('key-text').textContent = KEYTEXT[b.dataset.p];
+});
+
+/* ───────── 완료 셀프체크 ───────── */
+document.getElementById('check-list').innerHTML = CHECKS.map((c,i) => `
+  <div class="checkrow" data-i="${i}">
+    <div class="im"><img src="${c.img}" alt=""></div>
+    <div class="qb">
+      <span class="cbox"><svg fill="none" stroke-width="3" stroke-linecap="round" stroke-linejoin="round" viewBox="0 0 24 24"><path d="M4 12.5l5.5 5.5L20 7"/></svg></span>
+      <span class="qt">${c.q}</span>
+    </div>
+  </div>`).join('');
+document.getElementById('check-list').addEventListener('click', e => {
+  const r = e.target.closest('.checkrow'); if(!r) return;
+  const i = +r.dataset.i;
+  state.checks[i] = !state.checks[i];
+  r.classList.toggle('on', state.checks[i]);
+});
+
+/* ───────── 세션 플레이어 ───────── */
+const P = { t:0, dur:180, playing:false, id:null };
+const $ = id => document.getElementById(id);
+const mmss = s => String(Math.floor(s/60)).padStart(2,'0') + ':' + String(Math.floor(s%60)).padStart(2,'0');
+
+function loadExercise(i){
+  P.t = 0; P.dur = EXERCISES[i].dur; state.exIdx = i;
+  $('t-tot').textContent = mmss(P.dur);
+  // YMove 영상 연결 (없으면 시안 스틸컷으로 폴백)
+  const src = videoOf(EXERCISES[i].n), v = $('vid'), fb = $('vid-fallback');
+  if(src){
+    if(v.getAttribute('src') !== src) v.setAttribute('src', src);
+    v.style.display = 'block'; fb.style.display = 'none';
+    try{ v.currentTime = 0; }catch(_){}
+  }else{
+    v.removeAttribute('src'); v.style.display = 'none'; fb.style.display = 'block';
+  }
+  const t = thumbOf(EXERCISES[i].n);
+  if(t) document.querySelectorAll('.sheetbg .bgimg').forEach(im => im.src = t);
+  paintPlayer(); play();
+}
+function paintPlayer(){
+  $('t-cur').textContent = mmss(P.t);
+  $('t-fill').style.width = (P.t / P.dur * 100) + '%';
+  const cues = CUES[state.exIdx] || CUES[0];
+  let c = cues[0];
+  for(const x of cues) if(P.t >= x.t) c = x;
+  $('cue-main').textContent = c.m;
+  $('cue-next').textContent = c.x;
+}
+function play(){
+  stop();
+  P.playing = true;
+  const v = $('vid'); if(v.getAttribute('src')) v.play().catch(() => {});
+  $('ic-play').innerHTML = '<rect x="6" y="4" width="4" height="16" rx="1"/><rect x="14" y="4" width="4" height="16" rx="1"/>';
+  P.id = setInterval(() => {
+    P.t++;
+    if(P.t >= P.dur){ P.t = P.dur; paintPlayer(); nextStep(); return; }
+    paintPlayer();
+  }, 1000);
+}
+function stop(){
+  P.playing = false; clearInterval(P.id); P.id = null;
+  const v = $('vid'); if(v && !v.paused) v.pause();
+  $('ic-play').innerHTML = '<path d="M7 4l12 8-12 8z"/>';
+}
+/* 영상 로드 실패 대응 —
+   ① URL 만료(48h) 가능성이 있으니 프록시에 1회 강제 갱신 요청
+   ② 그래도 안 되면(코덱·네트워크 등) 스틸컷으로 조용히 폴백. 화면이 검게 죽지 않게. */
+let vidRetried = false;
+$('vid').addEventListener('error', async () => {
+  const v = $('vid');
+  if(!vidRetried && YM){
+    vidRetried = true;
+    const fresh = await loadYMove(true);
+    if(fresh){
+      YM = fresh;
+      const src = videoOf(EXERCISES[state.exIdx].n);
+      if(src && src !== v.getAttribute('src')){ v.setAttribute('src', src); v.load(); if(P.playing) v.play().catch(()=>{}); return; }
+    }
+  }
+  v.style.display = 'none';
+  $('vid-fallback').style.display = 'block';
+});
+
+$('btn-play').addEventListener('click', () => P.playing ? stop() : play());
+$('btn-prev').addEventListener('click', () => { P.t = 0; paintPlayer(); });
+$('btn-next').addEventListener('click', nextStep);
+
+function nextStep(){
+  stop();
+  state.doneEx = Math.max(state.doneEx, state.exIdx + 1);
+  if(state.exIdx === 0){ openRest(); }
+  else { go('complete'); }
+}
+
+/* 휴식 타이머 */
+const R = { t:30, id:null };
+function openRest(){
+  R.t = 30; $('rest-time').textContent = mmss(R.t);
+  $('sheet-rest').classList.add('on');
+  history.pushState({s:'rest'}, '', '?s=rest');
+  clearInterval(R.id);
+  R.id = setInterval(() => {
+    R.t--; $('rest-time').textContent = mmss(Math.max(R.t,0));
+    if(R.t <= 0) closeRest();
+  }, 1000);
+}
+function closeRest(){
+  clearInterval(R.id); R.id = null;
+  $('sheet-rest').classList.remove('on');
+  history.pushState({s:'player'}, '', '?s=player');
+  loadExercise(1);
+}
+$('rest-stop').addEventListener('click', closeRest);
+$('rest-minus').addEventListener('click', () => { R.t = Math.max(0, R.t - 10); $('rest-time').textContent = mmss(R.t); });
+$('rest-plus').addEventListener('click',  () => { R.t += 10; $('rest-time').textContent = mmss(R.t); });
+
+/* 그만두기 */
+$('btn-quit').addEventListener('click', () => {
+  stop(); clearInterval(R.id);
+  $('q-done').textContent = state.doneEx;
+  $('sheet-quit').classList.add('on');
+  history.pushState({s:'quit'}, '', '?s=quit');
+});
+$('quit-resume').addEventListener('click', () => {
+  $('sheet-quit').classList.remove('on');
+  history.pushState({s:'player'}, '', '?s=player');
+  play();
+});
+$('quit-exit').addEventListener('click', () => {
+  $('sheet-quit').classList.remove('on');
+  go('home');
+});
+
+/* ───────── 화면 진입/이탈 훅 ───────── */
+function onEnter(id){
+  if(id === 'player'){
+    $('sheet-rest').classList.remove('on');
+    $('sheet-quit').classList.remove('on');
+    loadExercise(0);
+  }
+  if(id === 'home' && state.doneEx > 0){
+    $('home-when').textContent = '내일의 코스';
+  }
+  if(id === 'saved'){
+    $('rc-ex').textContent = state.doneEx;
+    $('rc-chk').textContent = state.checks.filter(Boolean).length + '/4';
+  }
+}
+function onLeave(id){
+  if(id === 'player'){ stop(); clearInterval(R.id); }
+}
+
+/* 마이 탭 — 시안에 화면이 없어 의도적으로 미연결 (misclick 측정용) */
+$('tab-my').addEventListener('click', e => e.preventDefault());
+
+/* 홈 코스 카드 */
+$('home-card').addEventListener('click', () => go('course'));
+
+/* ───────── 부팅 ───────── */
+(function boot(){
+  const id = new URLSearchParams(location.search).get('s') || 'splash';
+  const ok = screens.some(s => s.dataset.s === id) ? id : 'splash';
+  screens.forEach(s => s.classList.toggle('on', s.dataset.s === ok));
+  history.replaceState({s:ok}, '', '?s=' + ok);
+  onEnter(ok);
+  loadYMove().then(poses => {
+    if(!poses) return;               // 프록시 없음 → 시안 이미지 유지
+    YM = poses;
+    applyMedia();
+    if(current() === 'player') loadExercise(state.exIdx);
+  });
+})();
+</script>
+</body>
+</html>
