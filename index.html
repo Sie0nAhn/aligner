@@ -123,6 +123,15 @@ h1,h2,h3,h4,p{margin:0}
 .scan.done .spot{opacity:1;animation:pulse 1.9s ease-out infinite}
 .spot.b{animation-delay:.5s}
 @keyframes pulse{0%{transform:scale(.72);opacity:.95}70%{transform:scale(1.18);opacity:.25}100%{transform:scale(1.25);opacity:0}}
+[data-s="analysis"] .t-done{display:none}
+[data-s="analysis"].scanned .t-scan{display:none}
+[data-s="analysis"].scanned .t-done{display:block;animation:fadeUp .5s ease}
+@keyframes fadeUp{from{opacity:0;transform:translateY(8px)}to{opacity:1;transform:none}}
+.dots{font-style:normal;letter-spacing:.12em}
+.dots b{font-weight:700;animation:dotBlink 1.3s infinite}
+.dots b:nth-child(2){animation-delay:.22s}
+.dots b:nth-child(3){animation-delay:.44s}
+@keyframes dotBlink{0%,62%,100%{opacity:.22}28%{opacity:1}}
 .cta#cta-analysis{opacity:0;transform:translateY(10px);pointer-events:none;transition:opacity .45s ease,transform .45s ease}
 .cta#cta-analysis.show{opacity:1;transform:none;pointer-events:auto}
 .scanlabel{position:absolute;left:50%;transform:translateX(-50%);white-space:nowrap;
@@ -255,6 +264,10 @@ h1,h2,h3,h4,p{margin:0}
   object-position: 50% 100%; /* 바닥(발) 부분이 보이도록 초점을 아래로 내림 */
   display: block;
 }
+/* 2. 영상이 없는 동작(YMove 썸네일)의 배너.
+      썸네일이 16:9라 잘라내면 인물이 사라져서 전체를 보여줍니다.
+      배경이 흰 스튜디오라 위아래 여백이 티나지 않습니다. */
+.gbanner img{width:100%;height:100%;object-fit:contain;background:#fff;display:block}
 .chips{display:flex;gap:8px;margin:14px 0}
 .chips button{height:36px;padding:0 16px;border-radius:999px;border:0;background:#fff;font-family:inherit;font-size:13px;font-weight:600;color:#8A8C87;cursor:pointer}
 .chips button.on{background:#17181A;color:#fff}
@@ -460,7 +473,10 @@ h1,h2,h3,h4,p{margin:0}
   </div>
   <div class="nav"><button class="iconbtn" data-back><svg fill="none" stroke="#17181A" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" viewBox="0 0 24 24"><path d="M15 18l-6-6 6-6"/></svg></button></div>
   <div class="steps" data-step="6"></div>
-  <h2 class="title" style="margin-top:8px">홍길동님은 등, 골반 근육이<br>약한것으로 분석돼요</h2>
+  <h2 class="title" style="margin-top:8px">
+    <span class="t-scan">분석중입니다 <i class="dots"><b>·</b><b>·</b><b>·</b></i></span>
+    <span class="t-done">홍길동님은 등, 골반 근육이<br>약한것으로 분석돼요</span>
+  </h2>
   <div class="grow"></div>
   <div class="footer"><button class="cta" id="cta-analysis" data-go="focus">다음</button></div>
 </section>
@@ -582,49 +598,21 @@ h1,h2,h3,h4,p{margin:0}
   </div>
   <div class="exlist" id="ex-list"></div>
   <div class="footer" style="position:sticky;bottom:0;background:linear-gradient(180deg,rgba(246,247,243,0) 0%,var(--bg) 34%);padding-bottom:6px">
-    <button class="cta" data-go="guide">운동 시작하기</button>
+    <button class="cta" id="course-start">코스 시작하기</button>
   </div>
 </section>
 
-<!-- 11-2. 동작 가이드 — 낙타 자세 (휴식 후) -->
-<section class="screen" data-s="guide2">
-  <div class="nav">
-    <button class="iconbtn" data-back><svg fill="none" stroke="#17181A" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" viewBox="0 0 24 24"><path d="M15 18l-6-6 6-6"/></svg></button>
-    <div class="ttl">데일리 루틴</div>
-  </div>
-  <div class="eyebrow" style="margin-top:14px">6/6 · 난이도 중</div>
-  <h2 class="title-lg" style="margin:6px 0 16px">낙타 자세</h2>
-  <div class="gbanner">
-    <video id="guide2-vid" src="assets/camel_w.mp4" poster="assets/camel_wposter.jpg"
-           muted loop playsinline webkit-playsinline preload="auto"></video>
-  </div>
-  <h3 style="font-size:17px;font-weight:700;margin:24px 0 0">운동 가이드</h3>
-  <div class="chips" id="guide2-chips">
-    <button class="on" data-p="chest">가슴</button><button data-p="core">코어</button>
-    <button data-p="waist">허리</button><button data-p="pelvis">골반</button>
-  </div>
-  <div class="guiderow">
-    <div class="mmap"><img id="mmap2-img" src="assets/muscle_chest.png" alt=""></div>
-    <div class="keycard">
-      <div class="kdot"><i></i></div><h4>핵심 동작</h4>
-      <p id="key2-text">명치를 천장을 향해 높게 끌어올려, 가슴이 천장 쪽으로 열리게 하세요.</p>
-    </div>
-  </div>
-  <div class="grow"></div>
-  <div class="footer"><button class="cta" id="c2-start">동작 시작하기</button></div>
-</section>
-
-<!-- 12. 동작 가이드 -->
+<!-- 12. 동작 가이드 (동작별 공통 · ?s=guide&ex=N) -->
 <section class="screen" data-s="guide">
   <div class="nav">
     <button class="iconbtn" data-back><svg fill="none" stroke="#17181A" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" viewBox="0 0 24 24"><path d="M15 18l-6-6 6-6"/></svg></button>
     <div class="ttl">데일리 루틴</div>
   </div>
-  <div class="eyebrow" style="margin-top:14px">1/6 · 난이도 하</div>
-  <h2 class="title-lg" style="margin:6px 0 16px">캣카우</h2>
+  <div class="eyebrow" id="g-eyebrow" style="margin-top:14px">1/6 · 난이도 하</div>
+  <h2 class="title-lg" id="g-title" style="margin:6px 0 16px">캣카우</h2>
   <div class="gbanner">
-    <video id="guide-vid" src="assets/catcow_w.mp4" poster="assets/catcow_wposter.jpg"
-           muted loop playsinline webkit-playsinline preload="auto"></video>
+    <video id="guide-vid" muted loop playsinline webkit-playsinline preload="auto"></video>
+    <img id="guide-img" alt="" style="display:none">
   </div>
   <h3 style="font-size:17px;font-weight:700;margin:24px 0 0">운동 가이드</h3>
   <div class="chips" id="guide-chips">
@@ -639,7 +627,7 @@ h1,h2,h3,h4,p{margin:0}
     </div>
   </div>
   <div class="grow"></div>
-  <div class="footer"><button class="cta" data-go="player">동작 시작하기</button></div>
+  <div class="footer"><button class="cta" id="g-start">동작 시작하기</button></div>
 </section>
 
 <!-- 13. 세션 플레이어 -->
@@ -773,13 +761,19 @@ const POSE_SLUG = {
 };
 
 const EXERCISES = [
-  {n:'캣카우',        tag:'가동성 웜업', se:'1세트/2분', sets:1, kcal:6, dur:180},
-  {n:'보트자세',      tag:'가동성 웜업', se:'3세트/2분', sets:3, kcal:6, dur:120},
-  {n:'테이블탑 밸런스',tag:'가동성 웜업', se:'3세트/2분', sets:3, kcal:6, dur:120},
-  {n:'플랭크 트랜지션',tag:'가동성 웜업', se:'1세트/2분', sets:1, kcal:6, dur:120},
-  {n:'낮은 런지',      tag:'본운동',     se:'2세트/2분', sets:2, kcal:6, dur:120},
-  {n:'낙타 자세',      tag:'본운동',     se:'2세트/3분', sets:2, kcal:6, dur:180}
+  {n:'캣카우',        tag:'가동성 웜업', se:'1세트/2분', sets:1, kcal:6, dur:180, lv:'하'},
+  {n:'보트자세',      tag:'가동성 웜업', se:'3세트/2분', sets:3, kcal:6, dur:120, lv:'중'},
+  {n:'테이블탑 밸런스',tag:'가동성 웜업', se:'3세트/2분', sets:3, kcal:6, dur:120, lv:'하'},
+  {n:'플랭크 트랜지션',tag:'가동성 웜업', se:'1세트/2분', sets:1, kcal:6, dur:120, lv:'중'},
+  {n:'낮은 런지',      tag:'본운동',     se:'2세트/2분', sets:2, kcal:6, dur:120, lv:'하'},
+  {n:'낙타 자세',      tag:'본운동',     se:'2세트/3분', sets:2, kcal:6, dur:180, lv:'중'}
 ];
+
+/* 가이드 상단 배너용 가로 영상 (없는 동작은 YMove 가로 썸네일로 대체) */
+const GUIDE_MEDIA = {
+  '캣카우':    {video:'assets/catcow_w.mp4', poster:'assets/catcow_wposter.jpg'},
+  '낙타 자세': {video:'assets/camel_w.mp4',  poster:'assets/camel_wposter.jpg'}
+};
 
 /* 음성 큐 자막 — 1번 동작 첫 줄만 시안에 존재, 나머지는 테스트용으로 작성됨 */
 const CUES = {
@@ -818,7 +812,7 @@ const KEYTEXT = {
 
 const state = {
   sport:null, duration:null, easy:[], hard:[], part:null, level:null,
-  exIdx:0, doneEx:0, checks:[false,false,false,false]
+  exIdx:0, guideIdx:0, doneEx:0, checks:[false,false,false,false]
 };
 
 /* ═════ YMove Exercise API (서버리스 프록시 경유) ═════
@@ -1002,10 +996,11 @@ document.getElementById('ex-list').innerHTML = EXERCISES.map((x,i) => `
     </div>
   </div>`).join('');
 
-/* 동작 카드를 누르면 동작 가이드로 이동 (?s=guide) */
+/* 동작 카드를 누르면 그 동작의 운동 가이드로 이동 (?s=guide&ex=N) */
+/* 동작 카드를 누르면 그 동작의 운동 가이드로 이동 (?s=guide&ex=N) */
 document.getElementById('ex-list').addEventListener('click', e => {
   const card = e.target.closest('.excard'); if(!card) return;
-  go('guide', true);
+  go('guide', true, +card.dataset.i);
 });
 
 /* ───────── 동작 가이드 ───────── */
@@ -1019,7 +1014,27 @@ function wireChips(chipsId, mapId, textId){
   });
 }
 wireChips('guide-chips','mmap-img','key-text');
-wireChips('guide2-chips','mmap2-img','key2-text');
+
+/* 동작별 가이드 화면 채우기 */
+function fillGuide(i){
+  const x = EXERCISES[i]; if(!x) return;
+  state.guideIdx = i;
+  $('g-eyebrow').textContent = (i+1) + '/6 · 난이도 ' + x.lv;
+  $('g-title').textContent = x.n;
+  const v = $('guide-vid'), img = $('guide-img'), gm = GUIDE_MEDIA[x.n];
+  if(gm){
+    if(v.getAttribute('src') !== gm.video) v.setAttribute('src', gm.video);
+    v.setAttribute('poster', gm.poster);
+    v.style.display = 'block'; img.style.display = 'none';
+  }else{
+    v.pause(); v.removeAttribute('src'); v.style.display = 'none';
+    img.src = thumbOf(x.n) || 'assets/video_still.jpg';   // YMove 가로 썸네일
+    img.style.display = 'block';
+  }
+  document.querySelectorAll('#guide-chips button').forEach((b,k) => b.classList.toggle('on', k === 0));
+  $('mmap-img').src = 'assets/muscle_chest.png';
+  $('key-text').textContent = KEYTEXT.chest;
+}
 
 /* ───────── 완료 셀프체크 ───────── */
 document.getElementById('check-list').innerHTML = CHECKS.map((c,i) => `
@@ -1133,7 +1148,7 @@ function closeRest(){
   clearInterval(R.id); R.id = null;
   $('sheet-rest').classList.remove('on');
   stop();
-  go('guide2');                  // 다음 동작(낙타 자세) 가이드를 한 번 보여준 뒤 재생
+  go('guide', true, 5);          // 다음 동작(낙타 자세) 가이드를 한 번 보여준 뒤 재생
 }
 $('rest-stop').addEventListener('click', closeRest);
 $('rest-minus').addEventListener('click', () => { R.t = Math.max(0, R.t - 10); paintRest(); });
@@ -1161,8 +1176,10 @@ $('quit-exit').addEventListener('click', () => { $('sheet-quit').classList.remov
 /* ───────── 화면 훅 ───────── */
 function onEnter(id, ex){
   if(id === 'analysis') runScan();
-  if(id === 'guide')  playBanner('guide-vid');
-  if(id === 'guide2') playBanner('guide2-vid');
+  if(id === 'guide'){
+    fillGuide(ex != null && EXERCISES[ex] ? +ex : 0);
+    playBanner('guide-vid');
+  }
   if(id === 'player'){
     $('sheet-rest').classList.remove('on');
     $('sheet-quit').classList.remove('on');
@@ -1180,12 +1197,11 @@ function onEnter(id, ex){
 function onLeave(id){
   if(id === 'player'){ stop(); clearInterval(R.id); }
   if(id === 'guide'){ const v = $('guide-vid'); if(v) v.pause(); }
-  if(id === 'guide2'){ const v = $('guide2-vid'); if(v) v.pause(); }
   if(id === 'analysis'){ clearTimeout(SCAN.t); }
 }
 
 function playBanner(id){
-  const v = $(id); if(!v) return;
+  const v = $(id); if(!v || !v.getAttribute('src')) return;
   try{ v.currentTime = 0; }catch(_){}
   v.play().catch(() => {});
 }
@@ -1194,19 +1210,23 @@ function playBanner(id){
 const SCAN = { t:null };
 function runScan(){
   const el = $('scan'), cta = $('cta-analysis');
+  const sec = document.querySelector('[data-s="analysis"]');
   if(!el) return;
   clearTimeout(SCAN.t);
   el.classList.remove('run','done');
+  if(sec) sec.classList.remove('scanned');     // 제목을 '분석중입니다 ···'로
   if(cta) cta.classList.remove('show');
   void el.offsetWidth;              // 애니메이션 리셋
   el.classList.add('run');
   SCAN.t = setTimeout(() => {       // 2.6s x 2회 = 스캔 완료
     el.classList.add('done');
+    if(sec) sec.classList.add('scanned');      // 제목을 분석 결과로 교체
     if(cta) cta.classList.add('show');
   }, 5200);
 }
 
-$('c2-start').addEventListener('click', () => go('player', true, 5));
+$('course-start').addEventListener('click', () => go('guide', true, 0));
+$('g-start').addEventListener('click', () => go('player', true, state.guideIdx || 0));
 
 /* 시안에 화면이 없어 의도적으로 미연결 — Maze에서 misclick으로 잡힙니다 */
 $('tab-my').addEventListener('click', e => e.preventDefault());
